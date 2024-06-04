@@ -4,29 +4,17 @@
 from typing import List, TypeVar
 from flask import request
 from api.v1.auth.auth import Auth
+import base64
+from models.user import User
 
 
 class BasicAuth(Auth):
     """Basic Authentication"""
 
-    pass
+    def __init__(self) -> None:
+        """Inherits from Auth"""
+        super().__init__()
 
-
-# #!/usr/bin/env python3
-# """Basic Auth Class
-# """
-# from typing import TypeVar
-# from api.v1.auth.auth import Auth
-# import base64
-# from models.user import User
-
-
-# class BasicAuth(Auth):
-#     """Basic Authentication"""
-
-#     def __init__(self) -> None:
-#         """Inherits from Auth"""
-#         super().__init__()
 
 #     def extract_base64_authorization_header(
 #         self, authorization_header: str
