@@ -49,14 +49,14 @@ class DB:
         Return: The first row found in the users table
         """
         if not kwargs:
-            raise InvalidRequestError("No query arguments were passed")
+            raise InvalidRequestError
         allowed_keys = User.__table__.columns.keys()  # User table Keys
         for key in kwargs.keys():
             if key not in allowed_keys:
-                raise InvalidRequestError("Wrong query arguments were passed")
+                raise InvalidRequestError
         my_user = self._session.query(User).filter_by(**kwargs).first()
         if not my_user:
-            raise NoResultFound("No results were found")
+            raise NoResultFound
         return my_user
 
     def update_user(self, user_id: int, **kwargs: Any) -> None:
@@ -70,7 +70,7 @@ class DB:
         # check key in kwargs are valid
         for key in kwargs.keys():
             if key not in valid_attr:
-                raise ValueError(f"Invalid key: {key}")
+                raise ValueError
         # Update the user object.
         for key, val in kwargs.items():
             setattr(user_obj, key, val)
