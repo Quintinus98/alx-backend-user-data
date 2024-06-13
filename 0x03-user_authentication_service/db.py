@@ -29,18 +29,14 @@ class DB:
         return self.__session
 
     def add_user(self, email: str, hashed_password: str) -> User:
-        """Saves a user to the database
-
-        Required: Accepts two arguments
-        -   email
-        -   hashed_password
-
-        Return: A user object
+        """ Adds user to database
+        Return: User Object
         """
-        user_obj = User(email=email, hashed_password=hashed_password)
-        self._session.add(user_obj)
+        user = User(email=email, hashed_password=hashed_password)
+        self._session.add(user)
         self._session.commit()
-        return user_obj
+
+        return user
 
     def find_user_by(self, **kwargs: Any) -> User:
         """This method takes in arbitrary keyword arguments and
