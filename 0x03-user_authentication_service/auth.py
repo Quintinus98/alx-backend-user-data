@@ -3,6 +3,7 @@
 import bcrypt
 from db import DB
 from sqlalchemy.exc import NoResultFound
+from user import User
 
 
 def _hash_password(password: str) -> bytes:
@@ -23,7 +24,7 @@ class Auth:
         """Initialize Auth with DB"""
         self._db = DB()
 
-    def register_user(self, email, password):
+    def register_user(self, email: str, password: str) -> User:
         """Returns a User object"""
         try:
             self._db.find_user_by(email=email)
