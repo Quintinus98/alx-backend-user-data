@@ -15,7 +15,7 @@ class DB:
 
     def __init__(self) -> None:
         """Initialize a new DB instance"""
-        self._engine = create_engine("sqlite:///a.db", echo=True)
+        self._engine = create_engine("sqlite:///a.db", echo=False)
         Base.metadata.drop_all(self._engine)
         Base.metadata.create_all(self._engine)
         self.__session = None
@@ -28,7 +28,7 @@ class DB:
             self.__session = DBSession()
         return self.__session
 
-    def add_user(self, email: str, hashed_password: str) -> object:
+    def add_user(self, email: str, hashed_password: str) -> User:
         """Saves a user to the database
 
         Required: Accepts two arguments
@@ -42,7 +42,7 @@ class DB:
         self._session.commit()
         return user_obj
 
-    def find_user_by(self, **kwargs: Any) -> object:
+    def find_user_by(self, **kwargs: Any) -> User:
         """This method takes in arbitrary keyword arguments and
         filters the method's input arguments.
 
@@ -64,25 +64,16 @@ class DB:
 
         Return: None
         """
-        if not user_id or not isinstance(user_id, int):
-            raise ValueError
         user_obj = self.find_user_by(id=user_id)
-        if not user_obj:
-            raise ValueError
-        valid_attr = user_obj.__dict__.keys()
+        valid_attr = User.__table__.columns.keys()
 
         # check key in kwargs are valid
         for key in kwargs.keys():
             if key not in valid_attr:
                 raise ValueError(f"Invalid key: {key}")
-        try:
-            # Update the user object.
-            user_obj.__dict__.update(valid_attr)
-            for key, val in kwargs.items():
-                setattr(user_obj, key, val)
+        # Update the user object.
+        for key, val in kwargs.items():
+            setattr(user_obj, key, val)
 
-            # save the user object
-            self._session.add(user_obj)
-            self._session.commit()
-        except Exception:
-            raise ValueError
+        # commit changes to the db
+        self._session.commit()
