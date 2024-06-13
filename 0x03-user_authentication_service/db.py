@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import InvalidRequestError
-from typing import Any
+
 from user import Base, User
 
 
@@ -43,7 +43,7 @@ class DB:
         self._session.commit()
         return user_obj
 
-    def find_user_by(self, **kwargs: Any) -> User:
+    def find_user_by(self, **kwargs) -> User:
         """This method takes in arbitrary keyword arguments and
         filters the method's input arguments.
 
@@ -51,16 +51,19 @@ class DB:
         """
         if not kwargs:
             raise InvalidRequestError
-        allowed_keys = User.__table__.columns.keys()  # User table Keys
+
+        allowed_keys = User.__table__.columns.keys()
         for key in kwargs.keys():
             if key not in allowed_keys:
                 raise InvalidRequestError
+
         my_user = self._session.query(User).filter_by(**kwargs).first()
-        if not my_user:
+        if my_user is None:
             raise NoResultFound
+
         return my_user
 
-    def update_user(self, user_id: int, **kwargs: Any) -> None:
+    def update_user(self, user_id: int, **kwargs) -> None:
         """Takes a user_id and arbitrary keyword arguments
 
         Return: None
@@ -68,13 +71,11 @@ class DB:
         user_obj = self.find_user_by(id=user_id)
         valid_attr = User.__table__.columns.keys()
 
-        # check key in kwargs are valid
         for key in kwargs.keys():
             if key not in valid_attr:
                 raise ValueError
-        # Update the user object.
+
         for key, val in kwargs.items():
             setattr(user_obj, key, val)
 
-        # commit changes to the db
         self._session.commit()
