@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
 from sqlalchemy.exc import NoResultFound, InvalidRequestError
-
+from typing import Any
 from user import Base, User
 
 
@@ -15,7 +15,7 @@ class DB:
 
     def __init__(self) -> None:
         """Initialize a new DB instance"""
-        self._engine = create_engine("sqlite:///a.db")
+        self._engine = create_engine("sqlite:///a.db", echo=False)
         Base.metadata.drop_all(self._engine)
         Base.metadata.create_all(self._engine)
         self.__session = None
@@ -28,7 +28,7 @@ class DB:
             self.__session = DBSession()
         return self.__session
 
-    def add_user(self, email, hashed_password):
+    def add_user(self, email: str, hashed_password: str) -> object:
         """Saves a user to the database
 
         Required: Accepts two arguments
@@ -42,7 +42,7 @@ class DB:
         self._session.commit()
         return user_obj
 
-    def find_user_by(self, **kwargs):
+    def find_user_by(self, **kwargs: Any) -> object:
         """This method takes in arbitrary keyword arguments and
         filters the method's input arguments.
 
@@ -50,12 +50,7 @@ class DB:
         """
         if not kwargs:
             raise InvalidRequestError("No query arguments were passed")
-        allowed_keys = [
-            "email",
-            "hashed_password",
-            "session_id",
-            "reset_token",
-        ]
+        allowed_keys = User.__table__.columns.keys()  # User table Keys
         for key in kwargs.keys():
             if key not in allowed_keys:
                 raise InvalidRequestError("Wrong query arguments were passed")
@@ -64,7 +59,7 @@ class DB:
             raise NoResultFound("No results were found")
         return my_user
 
-    def update_user(self, user_id, **kwargs):
+    def update_user(self, user_id: int, **kwargs: Any) -> None:
         """Takes a user_id and arbitrary keyword arguments
 
         Return: None
@@ -72,3 +67,22 @@ class DB:
         if not user_id or not isinstance(user_id, int):
             raise ValueError
         user_obj = self.find_user_by(id=user_id)
+        if not user_obj:
+            raise ValueError
+        valid_attr = user_obj.__dict__.keys()
+
+        # check key in kwargs are valid
+        for key in kwargs.keys():
+            if key not in valid_attr:
+                raise ValueError(f"Invalid key: {key}")
+        try:
+            # Update the user object.
+            user_obj.__dict__.update(valid_attr)
+            for key, val in kwargs.items():
+                setattr(user_obj, key, val)
+
+            # save the user object
+            self._session.add(user_obj)
+            self._session.commit()
+        except Exception:
+            raise ValueError
