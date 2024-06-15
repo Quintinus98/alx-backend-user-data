@@ -4,9 +4,11 @@ Main file
 """
 from auth import Auth
 from user import User
+import requests
 
 AUTH = Auth()
 
+BASE_URL = "http://localhost:5000"
 EMAIL = "guillaume@holberton.io"
 PASSWD = "b4l0u"
 NEW_PASSWD = "t4rt1fl3tt3"
@@ -14,8 +16,13 @@ NEW_PASSWD = "t4rt1fl3tt3"
 
 def register_user(email: str, password: str) -> None:
     """register a user"""
-    user = AUTH.register_user(email, password)
-    assert type(user) == User
+    data = {
+        email: email,
+        password: password
+    }
+    res = requests.post(f"{BASE_URL}/users", data=data)
+    expected = {"email": f"{email}", "message": "user created"}
+    assert res.json() == expected
 
 
 def log_in_wrong_password(email: str, password: str) -> None:
