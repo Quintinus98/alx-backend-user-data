@@ -18,6 +18,11 @@ def _hash_password(password: str) -> bytes:
     return hashed_password
 
 
+def _generate_uuid() -> str:
+    """Generates a random uuid"""
+    return str(uuid.uuid4())
+
+
 class Auth:
     """Auth class to interact with the authentication database."""
 
@@ -46,8 +51,3 @@ class Auth:
         password_bytes = password.encode("utf-8")
         res = bcrypt.checkpw(password_bytes, user.hashed_password)
         return res
-
-    @property
-    def _generate_uuid(self) -> str:
-        """Generates a random uuid"""
-        return uuid.uuid4()
