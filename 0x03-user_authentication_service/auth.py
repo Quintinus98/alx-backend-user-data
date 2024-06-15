@@ -4,6 +4,7 @@ import bcrypt
 from db import DB
 from sqlalchemy.orm.exc import NoResultFound
 from user import User
+import uuid
 
 
 def _hash_password(password: str) -> bytes:
@@ -45,3 +46,8 @@ class Auth:
         password_bytes = password.encode("utf-8")
         res = bcrypt.checkpw(password_bytes, user.hashed_password)
         return res
+
+    @property
+    def _generate_uuid(self) -> str:
+        """Generates a random uuid"""
+        return uuid.uuid4()
