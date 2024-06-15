@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, jsonify, abort
+from flask import Flask, jsonify, abort, make_response, url_for, redirect
 from auth import Auth
 from flask import request
 
@@ -39,6 +39,23 @@ def login():
         return res
 
     abort(401)
+
+
+@app.route("/sessions", methods=["DELETE"])
+def logout():
+    """Log out the User"""
+    session_id = request.cookies.get("session_id")
+    if not session_id:
+        abort(403)
+
+    user = AUTH.get_user_from_session_id(session_id)
+    if user is None:
+        abort(403)
+
+    AUTH.destroy_session(user.id)
+    res = make_response(redirect(url_for("home")))
+    res.set_cookie("session_id", "", 0)
+    return res
 
 
 if __name__ == "__main__":
