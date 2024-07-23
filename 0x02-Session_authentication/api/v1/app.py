@@ -69,7 +69,10 @@ def filter_request():
         and auth.session_cookie(request) is None
     ):
         abort(401)
-    request.current_user = auth.current_user(request)
+    cur_user = auth.current_user(request)
+    if cur_user is None:
+        abort(403)
+    request.current_user = cur_user
 
 
 if __name__ == "__main__":
