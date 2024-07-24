@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """Session Auth Class
 """
-from typing import List, TypeVar
-from flask import request
+
 from api.v1.auth.auth import Auth
-import base64
 from models.user import User
 from uuid import uuid4
 
@@ -29,13 +27,13 @@ class SessionAuth(Auth):
         return self.user_id_by_session_id.get(session_id, None)
 
     def current_user(self, request=None):
-        """Get the user instance based on a cookie value"""
-        cookie_value = self.session_cookie(request)
-        if cookie_value is None:
-            return None
-        user_id = self.user_id_for_session_id(cookie_value)
-        if user_id is None:
-            return None
-        user = User.get(user_id)
+        """Gets a User instance based on a cookie value"""
 
-        return user
+        session_id = self.session_cookie(request)
+
+        if session_id is None:
+            return None
+
+        user_id = self.user_id_for_session_id(session_id)
+
+        return User.get(user_id)
