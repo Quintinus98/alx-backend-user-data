@@ -13,8 +13,8 @@ def login_user() -> str:
     Return:
       - Login a user
     """
-    email = request.form.get("email")
-    password = request.form.get("password")
+    email = request.form.get("email", None)
+    password = request.form.get("password", None)
 
     if email is None:
         return jsonify({"error": "email missing"}), 400
